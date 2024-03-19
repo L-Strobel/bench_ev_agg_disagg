@@ -1,0 +1,18 @@
+[package]
+name = "benchmark-agg-disgg-rust"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "ev_agg_bench_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+indexmap = "*"
+itertools = "0.12.1"
+
+[dependencies.pyo3]
+version = "0.16.4"
+features = ["extension-module"]
