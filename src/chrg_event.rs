@@ -29,6 +29,7 @@ impl ChrgEvent {
         let len_event = (self.stop - self.start) as usize;
         let mut e_max = Vec::with_capacity(len_event);
         let mut soe = self.energy_arrival;
+        e_max.push(soe);
         for _ in 0..len_event {
             let e_charge = f64::max(0.0, f64::min(self.p_max * eta * delta_t, self.capacity - soe));
             soe += e_charge;
@@ -47,6 +48,7 @@ impl ChrgEvent {
             let e_charge = f64::max(0.0, f64::min(self.p_max * eta * delta_t, soe_rev - self.energy_arrival));
             soe_rev -= f64::min(soe_rev, e_charge); // Don't let battery fall below zero
         }
+        e_min.push(soe_rev);
         return e_min.into_iter().rev().collect();
     }
 }

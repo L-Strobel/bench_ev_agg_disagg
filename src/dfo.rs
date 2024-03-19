@@ -4,27 +4,6 @@ use pyo3::prelude::*;
 use itertools::izip;
 
 #[pyclass]
-#[derive(FromPyObject)]
-pub struct FlexModel {
-    #[pyo3(get)]
-    pub start: i32,
-    #[pyo3(get)]
-    pub stop: i32,
-    #[pyo3(get)]
-    pub p_max: f64,
-    #[pyo3(get)]
-    pub energy_needed: f64
-}
-
-#[pymethods]
-impl FlexModel {
-    #[new]
-    pub fn new(start: i32, stop: i32, p_max: f64, energy_needed: f64) -> Self {
-        FlexModel { start, stop, p_max, energy_needed }
-    }
-}
-
-#[pyclass]
 #[derive(Copy, Clone, Debug)]
 struct DFOVertex {
     #[pyo3(get)]

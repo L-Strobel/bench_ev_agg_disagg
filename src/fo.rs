@@ -4,18 +4,25 @@ use pyo3::prelude::*;
 use crate::fo_grouping::Group;
 use crate::{chrg_event::ChrgEvent, fo_grouping as fogrp};
 
+#[pyclass]
 #[derive(Copy, Clone)]
-struct Slice {
+pub struct Slice {
     amin: f64,
     amax: f64
 }
 
-struct FO{
+#[pyclass]
+pub struct FO {
+    #[pyo3(get)]
     t_earliest: i32,
+    #[pyo3(get)]
     t_latest: i32,
+    #[pyo3(get)]
     ammount_profile: Vec<Slice>,
     // For instantiated FOs:
+    #[pyo3(get)]
     t_realized: Option<i32>,
+    #[pyo3(get)]
     profile_realized: Option<Vec<f64>>
 }
 
@@ -103,7 +110,7 @@ impl FO {
             }
 
             let fo = FO {
-                t_earliest: event.start, t_latest: event.stop, ammount_profile,
+                t_earliest: event.start, t_latest: event.stop - (ammount_profile.len() as i32), ammount_profile,
                 t_realized: None, profile_realized: None};
             fos.push(fo);
         }
@@ -161,6 +168,5 @@ pub fn pipeline(events: Vec<ChrgEvent>, eta: f64, delta_t: f64, costs: Vec<f64>,
             rslt[i+offset] += p / delta_t;
         }
     }
-
-    return (rslt, agg_objects.len())
+    return  (rslt, agg_objects.len());
 }

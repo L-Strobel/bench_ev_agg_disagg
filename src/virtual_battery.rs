@@ -23,8 +23,8 @@ pub struct VBSlice {
 
 #[pyfunction]
 pub fn get_vb_params(events: Vec<ChrgEvent>, n_t: usize, eta: f64, delta_t: f64) -> Vec<VBSlice> {
-    let mut slices = Vec::with_capacity(n_t);
-    for _ in 0..n_t {
+    let mut slices = Vec::with_capacity(n_t + 1);
+    for _ in 0..(n_t + 1) {
         slices.push( VBSlice {capability: 0.0, e_arrival: 0.0, e_departure: 0.0, p_avg: 0.0, p_min: 0.0, e_max: 0.0, e_min: 0.0} );
     }
     
@@ -41,19 +41,25 @@ pub fn get_vb_params(events: Vec<ChrgEvent>, n_t: usize, eta: f64, delta_t: f64)
         // Constant power that fullfills demand
         let p_event_avg = e_event_needed / ((event.stop - event.start) as f64 * delta_t * eta);
 
+        // Power limits
         for t in event.start..event.stop {
             let t = t as usize;
             let slice = &mut slices[t];
 
-            // Energy limits
-            slice.e_min += e_event_min[t];
-            slice.e_max += e_event_max[t];
-
-            // Power limits
             slice.capability += event.p_max;
             
             // Store p_avg. Needed to gurantee flexibility of piece-wise-constraint
             slice.p_avg += p_event_avg;
+        }
+
+        // Energy limits
+        let t_offset = event.start as usize;
+        for t in event.start..event.stop {
+            let t = t as usize + 1;
+            let slice = &mut slices[t];
+
+            slice.e_min += e_event_min[t - t_offset];
+            slice.e_max += e_event_max[t - t_offset];
         }
 
         // Event needs constant power?

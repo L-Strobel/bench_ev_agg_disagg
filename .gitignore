@@ -1,1 +1,13 @@
 /target
+__pycache__/
+output/
+input_data/
+nohup.out
+nohup_compression.out
+*.pkl
+python_code/test.ipynb
+python_code/test_2.ipynb
+*.pyd
+*.csv
+*.png
+*.pdf

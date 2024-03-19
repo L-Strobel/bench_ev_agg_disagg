@@ -1,0 +1,10 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+module-name = "python_code.ev_agg_bench_rs"
+
+[project]
+name = "bench-ev-agg-disagg"
+dependencies = ["numpy", "pandas", "gurobipy", "matplotlib"]

@@ -68,6 +68,7 @@ pub fn disaggregate_prio_based(
         event_by_arrival.push(Vec::new())
     }
     for event in &events {
+        if event.p_max <= 0.0 { continue; } // Filter events without charging option
         let event_w_state = ChrgEventWState{sd: event, energy_curr: event.energy_arrival};
         event_by_arrival[event.start as usize].push(event_w_state);
     }
@@ -77,9 +78,9 @@ pub fn disaggregate_prio_based(
     for (t, arrivals) in event_by_arrival.into_iter().enumerate() {
         active_events.extend(arrivals);
 
-        // Sort - Reversed: Highest priority is the last item
+        // Sort
         let sorter = |event_a: &ChrgEventWState, event_b: &ChrgEventWState| -> Ordering {
-            priority_metric(event_b, event_a, t as i32, eta, delta_t)
+            priority_metric(event_a, event_b, t as i32, eta, delta_t)
         };
         active_events.sort_by(sorter);
 
@@ -119,7 +120,7 @@ pub fn disaggregate_prio_based(
             ((t as i32) < event.sd.stop) && (event.sd.energy_departure > event.energy_curr)
         })
     }
-    return Vec::new();
+    return load;
 }
 
 #[pyfunction]

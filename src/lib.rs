@@ -22,7 +22,6 @@ fn ev_agg_bench_rs(py: Python<'_>, m: &PyModule) -> PyResult<()> {
 fn register_dfo(py: Python, parent_module: &PyModule) -> PyResult<()> {
     let m = PyModule::new(py, "dfo")?;
     m.add_class::<dfo::DFO>()?;
-    m.add_class::<dfo::FlexModel>()?;
     m.add_function(wrap_pyfunction!(dfo::aggregate_pipeline, m)?)?;
     m.add_function(wrap_pyfunction!(dfo::disaggregate_and_add, m)?)?;
     parent_module.add_submodule(m)?;
@@ -31,6 +30,8 @@ fn register_dfo(py: Python, parent_module: &PyModule) -> PyResult<()> {
 
 fn register_fo(py: Python, parent_module: &PyModule) -> PyResult<()> {
     let m = PyModule::new(py, "fo")?;
+    m.add_class::<fo::FO>()?;
+    m.add_class::<fo::Slice>()?;
     m.add_function(wrap_pyfunction!(fo::pipeline, m)?)?;
     parent_module.add_submodule(m)?;
     Ok(())
