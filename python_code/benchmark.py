@@ -3,17 +3,20 @@ Run benchmark
 """
 import timeit
 from io import StringIO
+
 import midcrypt
 import pandas as pd
-import utils
-import config as c
-import cost_ts as cts
-import raw_python_impls.fo as fo
-import dfo
-import raw_python_impls.uncontrolled as uncontrolled
-import rep_profile as rep
-import raw_python_impls.virtual_battery as vb
-import raw_python_impls.disaggregation as disagg
+# pylint: disable=import-error
+import ev_agg_bench_rs as rs # type: ignore
+# pylint: enable=import-error
+
+import python_code.utils as utils
+import python_code.config as c
+import python_code.cost_ts as cts
+import python_code.dfo as dfo_rs
+import python_code.rep_profile as rep_rs
+import python_code.virtual_battery as vb_rs
+import python_code.profile_generator as gen
 
 def run_opt(agents, costs):
     """
@@ -28,11 +31,9 @@ def run_uncontrolled(agents, costs):
     """
     Run uncontrolled
     """
+    events = gen.get_chrg_events_restricted(agents, c.ETA, c.SOC_START, c.DELTA_T)
     t_start = timeit.default_timer()
-    load = utils.to_ts(
-        uncontrolled.run(agents=agents, eta=c.ETA, soc_start=c.SOC_START, delta_t=c.DELTA_T),
-        len(costs)
-    )
+    load = rs.run_unctr(events, c.ETA, c.DELTA_T, len(costs))
     t_stop = timeit.default_timer()
     o_value = utils.calc_total_costs(load, costs)
     return o_value, t_stop - t_start
@@ -42,13 +43,7 @@ def run_rep(agents, costs, seed, n_profiles, disagg_option):
     Run represenative profile
     """
     t_start = timeit.default_timer()
-    load = utils.to_ts(
-        rep.pipeline(
-            agents, seed, n_profiles, disagg_option, c.ETA,
-            c.SOC_START, c.DELTA_T, costs
-        ),
-        len(costs)
-    )
+    load = rep_rs.pipeline(agents, seed, n_profiles, disagg_option, c.ETA, c.SOC_START, c.DELTA_T, costs)
     t_stop = timeit.default_timer()
     o_value = utils.calc_total_costs(load, costs)
     return o_value, t_stop - t_start, n_profiles
@@ -57,8 +52,9 @@ def run_fo(agents, costs, est, tf):
     """
     Run FO
     """
+    events = gen.get_chrg_events_restricted(agents, c.ETA, c.SOC_START, c.DELTA_T)
     t_start = timeit.default_timer()
-    load, n_objects = fo.pipeline(agents, c.ETA, c.SOC_START, c.DELTA_T, costs, est, tf)
+    load, n_objects = rs.fo.pipeline(events, c.ETA, c.DELTA_T, costs, est, tf)
     t_stop = timeit.default_timer()
     o_value = utils.calc_total_costs(load, costs)
     return o_value, t_stop - t_start, n_objects
@@ -67,11 +63,12 @@ def run_dfo(agents, costs, est, st, num_samples):
     """
     Run DFO
     """
+    events = gen.get_chrg_events_restricted(agents, c.ETA, c.SOC_START, c.DELTA_T)
     t_start = timeit.default_timer()
     try:
-        load, n_objects  = dfo.pipeline(
-            agents, c.ETA, c.DELTA_T, costs, c.SOC_START, 1,
-            est=est, lst=st, num_samples=num_samples
+        load, n_objects = dfo_rs.pipeline(
+            events=events, eta=c.ETA, delta_t=c.DELTA_T, costs=costs, num_samples=num_samples,
+            est=est, lst=st, eps=1e-5
         )
         t_stop = timeit.default_timer()
         o_value = utils.calc_total_costs(load, costs)
@@ -86,21 +83,19 @@ def run_vb(agents, costs, disagg_option, mpx, mpy, offset, with_fsoe, grpd, est,
     """
     Run virtual battery
     """
+    events = gen.get_chrg_events_restricted(agents, c.ETA, c.SOC_START, c.DELTA_T)
     t_start = timeit.default_timer()
+
     if grpd:
-        load, n_objects  = vb.pipeline_grpd(
-            agents=agents, costs=costs, eta=c.ETA, soc_start=c.SOC_START, delta_t=c.DELTA_T,
-            est=est, lst=st, disagg_option=disagg_option, support_point=(mpx, mpy),
-            offset_at_full=offset, with_fsoe=with_fsoe
+        load, n_objects = vb_rs.pipeline_grpd(
+            events=events, eta=c.ETA, delta_t=c.DELTA_T, costs=costs, disagg_option=disagg_option,
+            support_point=(mpx, mpy), offset_at_full = offset, with_fsoe = with_fsoe,
+            est=est, lst=st
         )
     else:
-        load = utils.to_ts(
-            vb.pipeline(
-                agents=agents, costs=costs, eta=c.ETA, soc_start=c.SOC_START,
-                delta_t=c.DELTA_T, disagg_option=disagg_option,
-                support_point=(mpx, mpy), offset_at_full=offset, with_fsoe=with_fsoe
-            ),
-            len(costs)
+        load = vb_rs.pipeline(
+            events=events, eta=c.ETA, delta_t=c.DELTA_T, costs=costs, disagg_option=disagg_option,
+            support_point=(mpx, mpy), offset_at_full = offset, with_fsoe = with_fsoe
         )
         n_objects = 1
     t_stop = timeit.default_timer()
@@ -145,7 +140,7 @@ def run_iteration(trips, n_agents, seed, price_signal, fn_price, fn_gen, fn_dem)
     result.append( write_result_line("UNCONTROLLED", o_unctr, t_unctr, n_events) )
 
     # Represenative profiles
-    o_rep, t_rep, n_rep = run_rep(agents, costs, seed, 500, disagg.Option.LAXITY)
+    o_rep, t_rep, n_rep = run_rep(agents, costs, seed, 500, "LL")
     result.append( write_result_line("REP", o_rep, t_rep, n_rep) )
 
     # FO
@@ -159,22 +154,22 @@ def run_iteration(trips, n_agents, seed, price_signal, fn_price, fn_gen, fn_dem)
 
     # VB
     o_vb, t_vb, n_vb = run_vb(
-        agents, costs, disagg.Option.LAXITY, None, None, None, False, False, None, None
+        agents, costs, "LL", None, None, None, False, False, None, None
     )
     result.append( write_result_line("VB", o_vb, t_vb, n_vb) )
 
     o_vbd, t_vbd, n_vbd = run_vb(
-        agents, costs, disagg.Option.DEPARTURE, None, None, None, False, False, None, None
+        agents, costs, "ED", None, None, None, False, False, None, None
     )
     result.append( write_result_line("VB-ED", o_vbd, t_vbd, n_vbd) )
 
     o_vbf, t_vbf, n_vbf = run_vb(
-        agents, costs, disagg.Option.LAXITY, 0.8, 0.6, 0.15, True, False, None, None
+        agents, costs, "LL", 0.8, 0.6, 0.15, True, False, None, None
     )
     result.append( write_result_line("VB-FSOE", o_vbf, t_vbf, n_vbf) )
 
     o_vbg, t_vbg, n_vbg = run_vb(
-        agents, costs, disagg.Option.LAXITY, None, None, None, False, True, 33, 8
+        agents, costs, "LL", None, None, None, False, True, 33, 8
     )
     result.append( write_result_line("VB-GRPD", o_vbg, t_vbg, n_vbg) )
 
