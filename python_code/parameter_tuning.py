@@ -198,11 +198,8 @@ if __name__ == "__main__":
     REPS = 5
     N_AGENTS = 1000
 
-    # Load MID data, change this path to your copy of "Wege.csv" of the MID 2017
-    import midcrypt
-    mid_trips = midcrypt.fetchFromDir("/home/ubuntu/J/MID/MiD2017_Lokal_Wege.csv.encrypted")
-    mid_trips = pd.read_csv(StringIO(mid_trips), sep=";", decimal=",")
-    
+    mid_trips = pd.read_csv(c.MID_LOCATION, sep=";", decimal=",")
+
     # FO
     print(f"---- Tuning FO ----\t{datetime.now()}", flush=True)
     tune_fo(REPS, N_AGENTS, mid_trips, c.FN_PRICE)

@@ -197,11 +197,8 @@ def run(trips, reps, fn_price, fn_gen, fn_dem):
 if __name__ == "__main__":
     REPS = 10
 
-    # Load MID data, change this path to your copy of "Wege.csv" of the MID 2017
-    import midcrypt
-    mid_trips = midcrypt.fetchFromDir("/home/leo/J/MID/MiD2017_Lokal_Wege.csv.encrypted")
-    mid_trips = pd.read_csv(StringIO(mid_trips), sep=";", decimal=",")
-
+    mid_trips = pd.read_csv(c.MID_LOCATION, sep=";", decimal=",")
+    
     # Run
     run(mid_trips, REPS, c.FN_PRICE, c.FN_GEN, c.FN_DEM)
     
