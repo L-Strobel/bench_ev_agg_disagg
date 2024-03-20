@@ -12,7 +12,7 @@ P_HOME = 11
 P_WORK = 0
 EPS_GEOM = 1e-5
 
-# Paths: Change these
+# Paths: CHANGE ME
 MID_LOCATION = "/path/to/wege.csv" # Path to wege dataset of MID
 # Downloadable from smard.de
 FN_PRICE = "../input_data/Gro_handelspreise_202201010000_202301012359_Viertelstunde.csv"
