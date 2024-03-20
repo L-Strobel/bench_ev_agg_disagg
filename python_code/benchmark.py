@@ -4,7 +4,6 @@ Run benchmark
 import timeit
 from io import StringIO
 
-import midcrypt
 import pandas as pd
 # pylint: disable=import-error
 import ev_agg_bench_rs as rs # type: ignore
@@ -175,7 +174,7 @@ def run_iteration(trips, n_agents, seed, price_signal, fn_price, fn_gen, fn_dem)
 
     # Save results
     df = pd.DataFrame(result, columns=res_columns)
-    df.to_csv(f"results/Benchmark_{seed}_{n_agents}_{price_signal}.csv", sep=";")
+    df.to_csv(f"../results/data/Benchmark_{seed}_{n_agents}_{price_signal}.csv", sep=";")
 
 def run(trips, reps, fn_price, fn_gen, fn_dem):
     """
@@ -198,13 +197,11 @@ def run(trips, reps, fn_price, fn_gen, fn_dem):
 if __name__ == "__main__":
     REPS = 10
 
-    # v Change these v
-    FN_PRICE = "data/Gro_handelspreise_202201010000_202301012359_Viertelstunde.csv"
-    FN_GEN = "data/Realisierte_Erzeugung_202201010000_202301012359_Viertelstunde.csv"
-    FN_DEM = "data/Realisierter_Stromverbrauch_202201010000_202301012359_Viertelstunde.csv"
-
     # Load MID data, change this path to your copy of "Wege.csv" of the MID 2017
+    import midcrypt
     mid_trips = midcrypt.fetchFromDir("/home/leo/J/MID/MiD2017_Lokal_Wege.csv.encrypted")
     mid_trips = pd.read_csv(StringIO(mid_trips), sep=";", decimal=",")
-    run(mid_trips, REPS, FN_PRICE, FN_GEN, FN_DEM)
+
+    # Run
+    run(mid_trips, REPS, c.FN_PRICE, c.FN_GEN, c.FN_DEM)
     
