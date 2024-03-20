@@ -11,3 +11,4 @@ python_code/test_2.ipynb
 *.csv
 *.png
 *.pdf
+*.so
