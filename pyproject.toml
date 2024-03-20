@@ -7,4 +7,4 @@ module-name = "python_code.ev_agg_bench_rs"
 
 [project]
 name = "bench-ev-agg-disagg"
-dependencies = ["numpy", "pandas", "gurobipy", "matplotlib"]
+dependencies = ["numpy", "pandas", "gurobipy", "matplotlib", "seaborn"]
