@@ -11,56 +11,6 @@ import gurobipy as grb
 # pylint fails to look into gurobipy
 # pylint: disable=no-member
 
-def gift_wrapping(pnts: list[(float, float)], eps: float = 1e-5) -> list[(float, float)]:
-    """
-    Get convex hull of multiple points
-    :param pnts: Points
-    :param eps: Geometric percision
-    """
-    convex_hull = []
-    point_on_hull = min(pnts, key=lambda x: x[0])
-
-    for _ in range(len(pnts)):
-        convex_hull.append(point_on_hull)
-        endpoint = pnts[0]
-
-        for canditate in pnts[1:]:
-            if endpoint == point_on_hull:
-                endpoint = canditate
-                continue
-
-            # Line check
-            v = (
-                (endpoint[0] - point_on_hull[0]) * (canditate[1] - point_on_hull[1]) -
-                (endpoint[1] - point_on_hull[1]) * (canditate[0] - point_on_hull[0])
-            )
-
-            if v > eps:
-                endpoint = canditate
-            elif v > -eps:
-                # Compute distances
-                sqrd_endpnt = (
-                    (endpoint[0] - point_on_hull[0])**2 +
-                    (endpoint[1] - point_on_hull[1])**2
-                )
-                sqrd_canditate = (
-                    (canditate[0] - point_on_hull[0])**2 +
-                    (canditate[1] - point_on_hull[1])**2
-                )
-
-                # Check if candiate and endpoint are identical to avoid infinite loops
-                if abs(sqrd_canditate - sqrd_endpnt) < eps:
-                    if canditate == convex_hull[0]:
-                        endpoint = canditate
-                # Else keep the furthest point from point_on_hull
-                elif sqrd_canditate > sqrd_endpnt:
-                    endpoint = canditate
-        point_on_hull = endpoint
-
-        if point_on_hull == convex_hull[0]:
-            break
-    return convex_hull
-
 def optimize(dfo: rs.dfo.DFO, costs: list[float], eps: float = 1e-5) -> list[float]:
     """
     Optimal dispatch for DFO
@@ -80,7 +30,7 @@ def optimize(dfo: rs.dfo.DFO, costs: list[float], eps: float = 1e-5) -> list[flo
         # Constraints
         for t, s in enumerate(dfo.slices):
             s = s.vertices
-            hull = gift_wrapping([(x.d, x.e) for x in s], eps)
+            hull = rs.dfo.gift_wrapping([(x.d, x.e) for x in s], eps)
 
             # No feasible region
             if len(hull) == 0:

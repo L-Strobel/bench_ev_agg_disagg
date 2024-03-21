@@ -370,6 +370,64 @@ impl DFO {
 }
 
 #[pyfunction]
+pub fn gift_wrapping(points: Vec<(f64, f64)>, eps: f64)  -> Vec<(f64, f64)> {
+    let mut convex_hull = Vec::new();
+    let mut point_on_hull = *points.iter()
+        .min_by(|a, b| a.0.partial_cmp(&b.0)
+        .unwrap())
+        .unwrap();
+
+    for _ in 0..points.len() {
+        convex_hull.push(point_on_hull);
+        let mut endpoint = points[0];
+
+        for canditate in points.iter().skip(1) {
+            let canditate = *canditate;
+            if endpoint == point_on_hull {
+                endpoint = canditate;
+                continue;
+            }
+
+            // Line check
+            let v = 
+                (endpoint.0 - point_on_hull.0) * (canditate.1 - point_on_hull.1) -
+                (endpoint.1 - point_on_hull.1) * (canditate.0 - point_on_hull.0)
+            ;
+            
+            if v > eps {
+                endpoint = canditate
+            } else if v > -eps {
+                // Compute distances
+                let sqrd_endpnt = 
+                    (endpoint.0 - point_on_hull.0).powi(2) +
+                    (endpoint.1 - point_on_hull.1).powi(2)
+                ;
+                let sqrd_canditate = 
+                    (canditate.0 - point_on_hull.0).powi(2) +
+                    (canditate.1 - point_on_hull.1).powi(2)
+                ;
+
+                // Check if candiate and endpoint are identical to avoid infinite loops
+                if f64::abs(sqrd_canditate - sqrd_endpnt) < eps {
+                    if canditate == convex_hull[0] {
+                        endpoint = canditate;
+                    }
+                // Else keep the furthest point from point_on_hull
+                } else if sqrd_canditate > sqrd_endpnt {
+                    endpoint = canditate;
+                }
+            }
+        }
+        point_on_hull = endpoint;
+
+        if point_on_hull == convex_hull[0] {
+            break;
+        }
+    }
+    return convex_hull;
+}
+
+#[pyfunction]
 pub fn aggregate_pipeline(
     events: Vec<ChrgEvent>, eta:f64, delta_t: f64, num_samples: i32, eps: f64,
     est: i32, lst: i32
