@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 #[pyclass]
-#[derive(FromPyObject)]
+#[derive(FromPyObject, PartialEq)]
 pub struct ChrgEvent {
     #[pyo3(get)]
     pub start: i32,
