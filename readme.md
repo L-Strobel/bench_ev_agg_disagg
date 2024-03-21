@@ -9,18 +9,18 @@ This repository contains all the implementations of the EV charging event aggreg
 - rustup (https://www.rust-lang.org/tools/install)
 - maturin (```pip install maturin```)
 - Dataset "Mobilität in Deutschland 2017" (https://www.mobilitaet-in-deutschland.de/archive/index.html)
-  - Alternatively, you can supply any data that can be converted into the *Agent* class in *profile_generator.py*.
-    In that case, you need to replace the function *prepare_run()* in *utils.py* with a version that takes your data as input.
+  - Alternatively, you can supply any data that can be converted into the *Agent* class in *python_code/profile_generator.py*.
+    In that case, you need to replace the function *prepare_run()* in *python_code/utils.py* with a version that takes your data as input.
     Feel free to contact me if there are any issues with this process.
-- Electricity price, generation, and demand data for Germany 2022 in 15 min resolution from www.smard.de.
+- Electricity price, generation, and demand data for Germany 2022 in 15 min resolution from https://www.smard.de/en/downloadcenter/download-market-data/ (Warning: Use the english version of the website!).
   - Alternative: Only use the SINE price signal in *benchmark.run()*
 
 ## Running the benchmark
 
-1. Change the paths in *config.py* to direct to the MID and price data.
+1. Change the paths in *python_code/config.py* to direct to the MID and price data.
 2. Run ```maturin develop --release```
 3. Run ```python parameter_tuning.py``` for parameter tuning.
-4. Run ```python benchmark.py``` for benchmark results .
+4. Run ```python benchmark.py``` for benchmark results.
 
 The results will be located in *results/*.
 
