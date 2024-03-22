@@ -8,6 +8,7 @@ This repository contains all the implementations of the EV charging event aggreg
 - Python 
 - rustup (https://www.rust-lang.org/tools/install)
 - maturin (```pip install maturin```)
+- gurobi (https://www.gurobi.com/downloads/)
 - Dataset "Mobilität in Deutschland 2017" (https://www.mobilitaet-in-deutschland.de/archive/index.html)
   - Alternatively, you can supply any data that can be converted into the *Agent* class in *python_code/profile_generator.py*.
     In that case, you need to replace the function *prepare_run()* in *python_code/utils.py* with a version that takes your data as input.
