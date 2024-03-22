@@ -164,7 +164,7 @@ where T: PrioEvent {
         let mut repush = Vec::new();
         while active_events.len() > 0 {
             let mut prio_obj = active_events.pop().unwrap();
-            let mut event = prio_obj.get_event_as_mut();
+            let event = prio_obj.get_event_as_mut();
 
             let t_flex = (event.sd.stop - (t as i32)) as f64;
             let laxity = t_flex - t_until_charged(&event);
@@ -202,8 +202,8 @@ where T: PrioEvent {
         }
         
         // Reschedule unfinished events
-        for event in repush {
-            active_events.push(event)
+        for prio_obj in repush {
+            active_events.push(prio_obj)
         }
     }
     return load;
