@@ -1,5 +1,5 @@
 
-# Code of the paper "Benchmarking Aggregation-Disaggregation Pipelines for Smart Charging"
+# Code of the paper "Benchmarking Aggregation-Disaggregation Pipelines for Smart Charging of Electric Vehicles"
 
 This repository contains all the implementations of the EV charging event aggregation and disaggregation methods and the benchmarking setup used in the paper "Benchmarking Aggregation-Disaggregation Pipelines for Smart Charging."
 
