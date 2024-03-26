@@ -6,6 +6,7 @@ from io import StringIO
 from copy import deepcopy
 
 import python_code.benchmark as benchmark
+from python_code.profile_generator import CarType
 import python_code.config
 
 if __name__ == "__main__":
@@ -28,7 +29,7 @@ if __name__ == "__main__":
 
     # Winter consumption
     winter = deepcopy(defaultConfig)
-    winter.EV_TYPE.value[1] = 0.22
+    winter.EV_TYPE = CarType.BEV_MEDIUM_WINTER
     winter.name = "WINTER"
     configs.append(winter)
 
@@ -44,6 +45,7 @@ if __name__ == "__main__":
     pLow.name = "P_LOW"
     configs.append(pLow)
 
+    print(configs)
     # Run
     for config in configs:
         benchmark.run(

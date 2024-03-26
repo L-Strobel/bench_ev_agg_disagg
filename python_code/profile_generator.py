@@ -33,11 +33,12 @@ class CarType(Enum):
     Car type [capacity in kwh, CITY consumption in kwh/km]
     based on: https://doi.org/10.1016/j.apenergy.2022.118945
     """
-    BEV_SMALL   = [38, 0.146]
-    BEV_MEDIUM  = [72, 0.145]
-    BEV_LARGE   = [82, 0.182]
-    PHEV_MEDIUM = [11.7, 0.24]
-    PHEV_LARGE  = [13.9, 0.279]
+    BEV_SMALL           = [38, 0.146]
+    BEV_MEDIUM          = [72, 0.145]
+    BEV_MEDIUM_WINTER   = [72, 0.22]
+    BEV_LARGE           = [82, 0.182]
+    PHEV_MEDIUM         = [11.7, 0.24]
+    PHEV_LARGE          = [13.9, 0.279]
 
 class Event(NamedTuple):
     """
