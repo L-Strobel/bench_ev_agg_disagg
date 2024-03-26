@@ -2,7 +2,7 @@
 Utilities.
 """
 import math
-import python_code.config as c
+import python_code.config
 import python_code.optimal as optimal
 import python_code.profile_generator as ev
 import python_code.cost_ts as cts
@@ -31,7 +31,7 @@ def calc_total_costs(load: list[float], costs: list[float]) -> float:
         cost += cc*load[i]
     return cost
 
-def get_event_count(agents: list[ev.Agent]):
+def get_event_count(agents: list[ev.Agent], config: python_code.config.Config):
     """
     Get number of charging events with nonzero charged energy.
     :param agents: Agents
@@ -39,7 +39,7 @@ def get_event_count(agents: list[ev.Agent]):
     n_events = 0
     for agent in agents:
         events = outils.get_chrg_events_restricted(
-            agent=agent, eta=c.ETA, soc_start=c.SOC_START, delta_t=c.DELTA_T
+            agent=agent, eta=config.ETA, soc_start=config.SOC_START, delta_t=config.DELTA_T
         )
         for event in events:
             if event.e_departure > event.e_arrival:
@@ -48,7 +48,7 @@ def get_event_count(agents: list[ev.Agent]):
 
 def prepare_run(
         trips, seed, n_agents, price_signal, fn_price,
-        fn_gen, fn_dem
+        fn_gen, fn_dem, config: python_code.config.Config
     ):
     """
     Load price signal, ev parameters, and mobility schedules.
@@ -61,25 +61,25 @@ def prepare_run(
     :param fn_dem: File name of demand data
     """
     if price_signal == cts.PriceSignal.SINE:
-        costs = cts.sinus_costs(c.N_DAYS)
+        costs = cts.sinus_costs(config.N_DAYS)
     elif price_signal == cts.PriceSignal.REAL:
-        costs = cts.real_costs(c.N_DAYS, seed, fn_price)
+        costs = cts.real_costs(config.N_DAYS, seed, fn_price)
     elif price_signal == cts.PriceSignal.FUTURE:
-        costs = cts.future_costs(c.N_DAYS, seed, fn_gen, fn_dem)
+        costs = cts.future_costs(config.N_DAYS, seed, fn_gen, fn_dem)
 
     # Process data
     agents = []
     for i in range(n_agents):
         agent = ev.Agent(
-            id=i, events=[], capacity=c.EV_TYPE.value[0], car_type=c.EV_TYPE,
-            p_home=c.P_HOME, p_work=c.P_WORK
+            id=i, events=[], capacity=config.EV_TYPE.value[0], car_type=config.EV_TYPE,
+            p_home=config.P_HOME, p_work=config.P_WORK
         )
         agents.append(agent)
-    agents = ev.get_charging_events(trips, agents, c.N_DAYS, seed=seed)
+    agents = ev.get_charging_events(trips, agents, config.N_DAYS, seed=seed)
 
     return agents, costs
 
-def get_opt(agents: list[ev.Agent], costs: list[float]):
+def get_opt(agents: list[ev.Agent], costs: list[float], config: python_code.config.Config):
     """
     Determine optimal costs.
     :param agents: Agents
@@ -88,8 +88,8 @@ def get_opt(agents: list[ev.Agent], costs: list[float]):
     opt = calc_total_costs(
         to_ts(
             optimal.optimal(
-                agents=agents, costs=costs, eta=c.ETA,
-                soc_start=c.SOC_START, delta_t=c.DELTA_T, event_restricted=True),
+                agents=agents, costs=costs, eta=config.ETA,
+                soc_start=config.SOC_START, delta_t=config.DELTA_T, event_restricted=True),
             len(costs)
         ),
         costs
