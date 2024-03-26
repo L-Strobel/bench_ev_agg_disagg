@@ -23,21 +23,25 @@ if __name__ == "__main__":
     # Work charging
     work_charging = deepcopy(defaultConfig)
     work_charging.P_WORK = 11
+    work_charging.name = "WORK"
     configs.append(work_charging)
 
     # Winter consumption
     winter = deepcopy(defaultConfig)
     winter.EV_TYPE.value[1] = 0.22
+    winter.name = "WINTER"
     configs.append(winter)
 
     # Power high
     pHigh = deepcopy(defaultConfig)
     pHigh.P_HOME = 22
+    pHigh.name = "P_HIGH"
     configs.append(pHigh)
 
     # Power low
     pLow = deepcopy(defaultConfig)
     pLow.P_HOME = 4.7
+    pLow.name = "P_LOW"
     configs.append(pLow)
 
     # Run
